@@ -1,0 +1,33 @@
+# systemd unit file: tells Linux how to run server.py as a background service.
+# systemd starts it at boot, restarts it if it crashes, and collects its logs.
+#
+# Install:   sudo cp deploy/usgs-mcp.service /etc/systemd/system/
+#            sudo systemctl daemon-reload
+#            sudo systemctl enable --now usgs-mcp     (start now + at every boot)
+# Status:    systemctl status usgs-mcp
+# Logs:      journalctl -u usgs-mcp -f               (every tool call is logged here)
+
+[Unit]
+Description=USGS Water Data MCP server
+# Wait until the network is up before starting.
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+# Run as the normal 'ubuntu' user, not root.
+User=ubuntu
+WorkingDirectory=/opt/usgs-waterdata-mcp
+# Secrets (API_USGS_PAT, MCP_TOKEN) are loaded from this file, readable only by root.
+EnvironmentFile=/etc/usgs-mcp.env
+# 127.0.0.1 = only programs on this same machine can connect. Safe default.
+ExecStart=/opt/usgs-waterdata-mcp/.venv/bin/python server.py --transport http --host 127.0.0.1 --port 8000
+Restart=on-failure
+RestartSec=5
+# Extra sandboxing: the service cannot gain privileges or write to system folders.
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

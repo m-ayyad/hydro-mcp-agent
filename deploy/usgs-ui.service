@@ -1,0 +1,27 @@
+# systemd unit for the web interface (ui.py). Same pattern as usgs-mcp.service.
+#
+# Install:   sudo cp deploy/usgs-ui.service /etc/systemd/system/
+#            sudo systemctl daemon-reload && sudo systemctl enable --now usgs-ui
+# Logs:      journalctl -u usgs-ui -f
+
+[Unit]
+Description=USGS Water Data Assistant web UI
+# Start after the MCP server, and stop if it stops.
+After=usgs-mcp.service
+Requires=usgs-mcp.service
+
+[Service]
+User=ubuntu
+WorkingDirectory=/opt/usgs-waterdata-mcp
+# Same settings file as the MCP server: MCP_URL, MCP_TOKEN, LLM keys, UI_* settings.
+EnvironmentFile=/etc/usgs-mcp.env
+Environment=GRADIO_ANALYTICS_ENABLED=False
+Environment=GRADIO_TEMP_DIR=/tmp/gradio
+ExecStart=/opt/usgs-waterdata-mcp/.venv/bin/python ui.py
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
