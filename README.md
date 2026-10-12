@@ -99,7 +99,7 @@ A guardrail is a limit that stops the system from doing something harmful, expen
 
 ---
 
-## 4. Try it on your laptop first (baby step 1)
+## 4. Try it on your laptop first
 
 ```bash
 git clone <your repo> && cd usgs-mcp
@@ -118,7 +118,7 @@ You'll see each tool call printed as `-> find_sites({...})`, so you can watch Cl
 
 ---
 
-## 5. Put the server on EC2 (baby step 2)
+## 5. Put the server on EC2
 
 1. **Launch an instance.** Ubuntu 24.04, `t3.small`. There's no GPU, because the LLM runs at Anthropic/Bedrock, and this server only makes web requests.
 2. **Security group (the instance's firewall).** Inbound: allow only **SSH (22) from your IP**. Do *not* open 8000. You'll reach the server through an SSH tunnel.
